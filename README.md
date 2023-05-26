@@ -25,11 +25,68 @@ Steps I used
 4) 1st attempt i.e. virutal machines in home lab (https://www.laroberto.com/ubuntu-pxe-boot-with-autoinstall/)
 5) attempe with old laptop as Ubuntu server
     a) install UBUNTU server
+    b) download ubunt desktop iso file
     b) install pakcages
           sudo apt-get install apache2
           sudo apt-get install nfs-kernel-server 
           sudo apt-get install dnsmasq
-          
+  c) create TFTP stucture
+  d) pull iso file to folder
+            sudo mount /dev/sr0 /media
+            
+  e) Edit DNSMASQ in /etc/dnsmasq.conf ( I copied most of this but changed the DHCP range and gateway
+            #Interface information 
+        #--use ip addr to see the name of the interface on your system
+        interface=eth0,lo
+        bind-interfaces
+        domain=c-nergy.local
+
+        #--------------------------
+        #DHCP Settings
+        #--------------------------
+        #-- Set dhcp scope
+        dhcp-range=192.168.1.2,192.168.1.200,255.255.255.0,2h
+
+        #-- Set gateway option
+        dhcp-option=3,192.168.1.1
+
+        #-- Set DNS server option
+        dhcp-option=6,192.168.1.1
+
+        #-- dns Forwarder info
+        server=8.8.8.8
+
+        #----------------------#
+        # Specify TFTP Options #
+        #----------------------#
+
+        #--location of the pxeboot file
+        dhcp-boot=/bios/pxelinux.0,pxeserver,192.168.1.150
+
+        #--enable tftp service
+        enable-tftp
+
+        #-- Root folder for tftp
+        tftp-root=/tftp
+
+        #--Detect architecture and send the correct bootloader file
+        dhcp-match=set:efi-x86_64,option:client-arch,7 
+        dhcp-boot=tag:efi-x86_64,grub/bootx64.efi
+        
+        d) setup PXE.cfg file so that PXe knows where to pull hte iso files from
+        default menu.c32
+            menu title Ubuntu installer
+
+            label jammy
+                    menu label Install Ubuntu J^ammy (22.04)
+                    menu default
+                    kernel jammy/vmlinuz
+                    initrd jammy/initrd
+                    append ip=dhcp cloud-config-url=/dev/null url=http://x.x.x.x/jammy-live-server-amd64.iso autoinstall ds=nocloud-net;s=http://192.168.1.252/jammy/ # Don't forget the slash at the end.
+
+            prompt 0
+            timeout 300
+
         
 
 
