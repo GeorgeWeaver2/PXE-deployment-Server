@@ -14,89 +14,25 @@ Steps I used to build the PXE server
                 step byu step instructions: https://help.ubuntu.com/community/Installation/LocalNet
         2) Subquity/ curtin (server install run by python) 
         3) Cloud-init & Quickstart (automated install using cloud image)
-                Link: https://www.golinuxcloud.com/pxe-boot-server-cloud-init-ubuntu-20-04/#Step-1_Install_and_Configure_Apache_Server
-
+                Links:  https://www.golinuxcloud.com/pxe-boot-server-cloud-init-ubuntu-20-04/#Step-1_Install_and_Configure_Apache_Server
+                    
 2) Choosing a method:
-    I decided to try the Cloud init method because any exposure to 
-      
- 2) PArts needed to create PXE server. The image on this website gives a good 
+    I decided to try the Cloud init method because any exposure to  automation and YAML files should benefit me later on.
+    link:  building the 00-install-config.yaml file (https://linuxhint.com/pxe_boot_ubuntu_server/)
+     
+3) PArts needed to create PXE server. 
   DHCP -> PXE -> TFTP
   1) DHCP server (assigning IP addresses to client devices and PXE server so they can find each other)
   2) TFTP Server (holds ubuntu ISO files that will be installed on client)
   3) PXE Server (pushes iso file client based on IP address)
 
 
-
-
-4) 1st attempt i.e. virutal machines in home lab (https://www.laroberto.com/ubuntu-pxe-boot-with-autoinstall/)
-5) attempe with old laptop as Ubuntu server
-    a) install UBUNTU server
-    b) download ubunt desktop iso file
-    b) install pakcages
-          sudo apt-get install apache2
-          sudo apt-get install nfs-kernel-server 
-          sudo apt-get install dnsmasq
-  c) create TFTP stucture
-  d) pull iso file to folder
-            sudo mount /dev/sr0 /media
-            
-  e) Edit DNSMASQ in /etc/dnsmasq.conf ( I copied most of this but changed the DHCP range and gateway
-            #Interface information 
-        #--use ip addr to see the name of the interface on your system
-        interface=eth0,lo
-        bind-interfaces
-        domain=c-nergy.local
-
-        #--------------------------
-        #DHCP Settings
-        #--------------------------
-        #-- Set dhcp scope
-        dhcp-range=192.168.1.2,192.168.1.200,255.255.255.0,2h
-
-        #-- Set gateway option
-        dhcp-option=3,192.168.1.1
-
-        #-- Set DNS server option
-        dhcp-option=6,192.168.1.1
-
-        #-- dns Forwarder info
-        server=8.8.8.8
-
-        #----------------------#
-        # Specify TFTP Options #
-        #----------------------#
-
-        #--location of the pxeboot file
-        dhcp-boot=/bios/pxelinux.0,pxeserver,192.168.1.150
-
-        #--enable tftp service
-        enable-tftp
-
-        #-- Root folder for tftp
-        tftp-root=/tftp
-
-        #--Detect architecture and send the correct bootloader file
-        dhcp-match=set:efi-x86_64,option:client-arch,7 
-        dhcp-boot=tag:efi-x86_64,grub/bootx64.efi
-        
-        d) setup PXE.cfg file so that PXe knows where to pull hte iso files from
-        default menu.c32
-            menu title Ubuntu installer
-
-            label jammy
-                    menu label Install Ubuntu J^ammy (22.04)
-                    menu default
-                    kernel jammy/vmlinuz
-                    initrd jammy/initrd
-                    append ip=dhcp cloud-config-url=/dev/null url=http://x.x.x.x/jammy-live-server-amd64.iso autoinstall ds=nocloud-net;s=http://192.168.1.252/jammy/ # Don't forget the slash at the end.
-
-            prompt 0
-            timeout 300
-
-        
-
-
-
-
-
-  
+4) Attempts:
+    a) virtual machines in home lab (https://www.laroberto.com/ubuntu-pxe-boot-with-autoinstall/)
+    b) Laptop as Ubuntu server with router as DHCP server
+        - install UBUNTU server
+        - download ubunt desktop iso file
+        - install pakcages (apache, nfs-kernel-server, dnsmasq)
+        - create TFTP stucture
+        - Edit DNSMASQ in /etc/dnsmasq.conf ( I left most of it alone but changed the DHCP range and gateway)
+       
